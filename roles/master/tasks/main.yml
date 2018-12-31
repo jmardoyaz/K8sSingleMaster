@@ -1,0 +1,37 @@
+---
+# tasks file for master
+
+- name: Iniciar Cluster K8s
+  shell: kubeadm init >> k8s_init.txt
+  become: yes
+  args:
+    chdir: $HOME
+    creates: k8s_init.txt
+
+- name: Crear .kube directory
+  become: yes
+  file:
+    path: $HOME/.kube
+    state: directory
+    mode: 0755
+
+- name: Copiar admin.conf a la configuración de Usuario
+  become: yes
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: $HOME/.kube/config
+    remote_src: yes
+
+- name: Instalación Pod Network
+  become: yes
+  shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')" >> pod_network_setup.txt
+  args:
+    chdir: $HOME
+    creates: pod_network_setup.txt
+
+- name: Setear nodo como Single Master
+  become: yes
+  shell: kubectl taint nodes --all node-role.kubernetes.io/master- >> master_node.txt
+  args:
+    chdir: $HOME
+    creates: master_node.txt

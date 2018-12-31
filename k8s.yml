@@ -1,0 +1,7 @@
+---
+
+- name: K8s Init Cluster
+  hosts: ['develop']
+  roles:
+    - basic
+    - master

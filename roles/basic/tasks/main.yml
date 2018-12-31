@@ -1,0 +1,120 @@
+---
+# tasks file for basic
+
+- name: Instalacion LVM2 - Device Mapper - Yum Utils
+  become: yes
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - yum-utils
+    - device-mapper-persistent-data
+    - lvm2
+
+- name: Agregar Repositorio Docker CE
+  become: yes
+  command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: Instalación Docker CE
+  become: yes
+  yum:
+    name: docker-ce
+    state: present
+
+- name: Iniciar Docker
+  become: yes
+  service:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: Instalación Easy Install
+  become: yes
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - python-setuptools
+    - python-setuptools-devel
+
+- name: Instalación PIP
+  become: yes
+  easy_install:
+    name: pip
+    state: latest
+
+- name: Instalación Paquete Docker Python
+  become: yes
+  pip:
+    name: docker
+
+- name: Remover swapfile de /etc/fstab
+  become: yes
+  mount:
+    name: swap
+    fstype: swap
+    state: absent
+
+- name: Iniciar Docker
+  become: yes
+  service:
+    name: docker
+    state: started
+
+- name: Deshabilitar swap
+  become: yes
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: Deshabilitar SELinux
+  become: yes
+  command: setenforce 0
+
+- name: Deshabilitar SELinux Permanente
+  become: yes
+  selinux:
+    state: disabled
+
+- name: Setear net.bridge.bridge-nf-call-ip6tables a 1
+  become: yes
+  sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: 1
+    state: present
+
+- name: Setear net.bridge.bridge-nf-call-iptables a 1
+  become: yes
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+    state: present
+
+# Kubernetes
+- name: Agregar Repositorio Kubernetes
+  become: yes
+  yum_repository:
+    name: Kubernetes
+    description: Kubernetes YUM repository
+    baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+    gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+    gpgcheck: yes
+
+- name: Instalacion kubelet
+  become: yes
+  yum:
+    name: kubelet
+    state: present
+    update_cache: true
+
+- name: Instalacion kubeadm
+  become: yes
+  yum:
+    name: kubeadm
+    state: present
+
+- name: Iniciar kubelet
+  become: yes
+  service:
+    name: kubelet
+    enabled: yes
+    state: started
