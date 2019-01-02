@@ -75,6 +75,13 @@
   selinux:
     state: disabled
 
+- name: Setear net.ipv4.ip_forward a 1
+  become: yes
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    state: present
+
 - name: Setear net.bridge.bridge-nf-call-ip6tables a 1
   become: yes
   sysctl:
