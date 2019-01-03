@@ -103,7 +103,7 @@ token:      eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2V
 - Acceso a Dashboard
 
 ```bash 
-https://172.0.1.2:30500/#!/login
+https://172.0.1.2:31500/#!/login
 ```
 
 # Referencias
